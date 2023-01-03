@@ -19,8 +19,8 @@ public class ChatFrame extends JFrame {
     JComboBox<String> onlineUsers = new JComboBox<String>();
 
     private final String username;
-    private DataInputStream dis;
-    private DataOutputStream dos;
+    private final DataInputStream dis;
+    private final DataOutputStream dos;
 
     private final HashMap<String, JTextPane> chatWindows = new HashMap<String, JTextPane>();
 
@@ -143,7 +143,7 @@ public class ChatFrame extends JFrame {
                                                 .addComponent(txtMessage, GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
                                                 .addPreferredGap(ComponentPlacement.RELATED)
                                                 .addPreferredGap(ComponentPlacement.RELATED)
-                                                .addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 42, GroupLayout.PREFERRED_SIZE))
+                                                .addComponent(btnSend, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE))
                                         .addComponent(chatPanel, GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)))
         );
         gl_contentPane.setVerticalGroup(
@@ -247,21 +247,19 @@ public class ChatFrame extends JFrame {
             }
         });
 
-        btnSend.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    dos.writeUTF("Text");
-                    dos.writeUTF(lbReceiver.getText());
-                    dos.writeUTF(txtMessage.getText());
-                    dos.flush();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                    newMessage("ERROR", "Network error!", true);
-                }
-                // In ra tin nhắn lên màn hình chat với người nhận
-                newMessage(username, txtMessage.getText(), true);
-                txtMessage.setText("");
+        btnSend.addActionListener(e -> {
+            try {
+                dos.writeUTF("Text");
+                dos.writeUTF(lbReceiver.getText());
+                dos.writeUTF(txtMessage.getText());
+                dos.flush();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                newMessage("ERROR", "Network error!", true);
             }
+            // In ra tin nhắn lên màn hình chat với người nhận
+            newMessage(username, txtMessage.getText(), true);
+            txtMessage.setText("");
         });
 
         this.getRootPane().setDefaultButton(btnSend);

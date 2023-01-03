@@ -97,34 +97,6 @@ class ServerThread implements Runnable {
         this.username = username;
     }
 
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-        try {
-            this.dis = new DataInputStream(socket.getInputStream());
-            this.dos = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void closeSocket() {
-        if (socket != null) {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public String getUsername() {
-        return this.username;
-    }
-
-    public DataOutputStream getDos() {
-        return this.dos;
-    }
-
     @Override
     public void run() {
         while (true) {
@@ -150,9 +122,40 @@ class ServerThread implements Runnable {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
                 closeSocket();
+                System.out.println(this.username + " is disconnected !");
+                break;
             }
         }
+    }
+
+    public void setSocket(Socket socket) {
+        this.socket = socket;
+        try {
+            this.dis = new DataInputStream(socket.getInputStream());
+            this.dos = new DataOutputStream(socket.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeSocket() {
+        if (socket != null) {
+            try {
+                Server.activeClients.removeIf(client -> this.username.equals(client.getUsername()));
+                socket.close();
+                Thread.currentThread().interrupt();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public DataOutputStream getDos() {
+        return this.dos;
     }
 }
