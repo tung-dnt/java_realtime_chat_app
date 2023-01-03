@@ -95,6 +95,18 @@ public class ChatFrame extends JFrame {
         onlineUsers.validate();
     }
 
+    private void sendMessage(){
+        try {
+            dos.writeUTF("Text");
+            dos.writeUTF(lbReceiver.getText());
+            dos.writeUTF(txtMessage.getText());
+            dos.flush();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            newMessage("ERROR", "Network error!", true);
+        }
+    }
+
     public ChatFrame(String username, Socket clientSocket) throws IOException {
         setTitle("NPR CHAT");
         this.username = username;
@@ -248,15 +260,7 @@ public class ChatFrame extends JFrame {
         });
 
         btnSend.addActionListener(e -> {
-            try {
-                dos.writeUTF("Text");
-                dos.writeUTF(lbReceiver.getText());
-                dos.writeUTF(txtMessage.getText());
-                dos.flush();
-            } catch (IOException e1) {
-                e1.printStackTrace();
-                newMessage("ERROR", "Network error!", true);
-            }
+            sendMessage();
             // In ra tin nhắn lên màn hình chat với người nhận
             newMessage(username, txtMessage.getText(), true);
             txtMessage.setText("");

@@ -4,27 +4,22 @@ import java.util.ArrayList;
 
 public class Server {
     private ServerSocket serverSocket;
-
-    static final String[] clientNameList = {"Tung", "Thanh", "Dong", "Khanh", "Chien"};
     static final ArrayList<ServerThread> activeClients = new ArrayList<>();
 
     public Server() throws IOException {
         try {
             // Socket dùng để xử lý các yêu cầu đăng nhập/đăng ký từ user
-            serverSocket = new ServerSocket(9999);
+            serverSocket = new ServerSocket(Const.PORT);
             System.out.println("Server is ready to access now !");
             while (true) {
                 // Đợi request đăng nhập/đăng xuất từ client
                 Socket socket = serverSocket.accept();
 
                 DataInputStream dis = new DataInputStream(socket.getInputStream());
-                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
                 String username = dis.readUTF();
 
                 System.out.println(username + " is connected !");
-                // Kiểm tra tên đăng nhập có tồn tại hay không
-                if (isExisted(username)) {
                     // Thêm người dùng vừa truy cập vào danh sách active users
                     activeClients.add(new ServerThread(username));
 
@@ -39,10 +34,6 @@ public class Server {
                         }
                     }
                     sendActiveClients();
-                } else {
-                    dos.writeUTF("This username is not exist");
-                    dos.flush();
-                }
             }
         } catch (Exception ex) {
             System.err.println(ex);
@@ -51,18 +42,6 @@ public class Server {
                 serverSocket.close();
             }
         }
-    }
-
-    /**
-     * Kiểm tra username đã tồn tại hay chưa
-     */
-    public boolean isExisted(String name) {
-        for (String client : clientNameList) {
-            if (client.equals(name)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void sendActiveClients() {

@@ -7,7 +7,7 @@ public class ClientMain {
         System.out.println("Please enter username");
         String username = sc.nextLine();
 
-        Socket clientSocket = new Socket("localhost", 9999);
+        Socket clientSocket = new Socket(Const.HOST, Const.PORT);
 
         new ChatFrame(username, clientSocket);
     }
