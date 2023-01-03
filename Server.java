@@ -25,13 +25,13 @@ public class Server {
 
                 System.out.println(username + " is connected !");
                 ServerThread client = new ServerThread(username);
-                    activeClients.add(client);
-        // Tạo Handler mới để giải quyết các request từ user này
-                            client.setSocket(socket);
-                            // Tạo một Thread để giao tiếp với user này
-                            Thread t = new Thread(client);
-                            t.start();
-               
+                activeClients.add(client);
+                // Tạo Handler mới để giải quyết các request từ user này
+                client.setSocket(socket);
+                // Tạo một Thread để giao tiếp với user này
+                Thread t = new Thread(client);
+                t.start();
+
             }
         } catch (Exception ex) {
             System.err.println(ex);
@@ -60,14 +60,13 @@ class ServerThread implements Runnable {
     public void run() {
         while (true) {
             try {
-                    String content = dis.readUTF();
-
-                    for (ServerThread client : Server.activeClients) {
-                            synchronized (new Object()) {
-                                client.getDos().writeUTF(this.username);
-                                client.getDos().writeUTF(content);
-                            }
-                        }
+                String content = dis.readUTF();
+                for (ServerThread client : Server.activeClients) {
+                    synchronized (new Object()) {
+                        client.getDos().writeUTF(this.username);
+                        client.getDos().writeUTF(content);
+                    }
+                }
             } catch (IOException e) {
                 closeSocket();
                 System.out.println(this.username + " is disconnected !");
