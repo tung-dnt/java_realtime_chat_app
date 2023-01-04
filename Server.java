@@ -20,44 +20,23 @@ public class Server {
                 String username = dis.readUTF();
 
                 System.out.println(username + " is connected !");
-                    // Thêm người dùng vừa truy cập vào danh sách active users
-                    activeClients.add(new ServerThread(username));
 
-                    for (ServerThread client : activeClients) {
-                        if (client.getUsername().equals(username)) {
-                            // Tạo Handler mới để giải quyết các request từ user này
-                            client.setSocket(socket);
-                            // Tạo một Thread để giao tiếp với user này
-                            Thread t = new Thread(client);
-                            t.start();
-                            break;
-                        }
-                    }
-                    sendActiveClients();
+                ServerThread client = new ServerThread(username);
+
+                // Thêm người dùng vừa truy cập vào danh sách active users
+                activeClients.add(client);
+
+                // Tạo Handler mới để giải quyết các request từ user này
+                client.setSocket(socket);
+                // Tạo một Thread để giao tiếp với user này
+                Thread t = new Thread(client);
+                t.start();
             }
         } catch (Exception ex) {
             System.err.println(ex);
         } finally {
             if (serverSocket != null) {
                 serverSocket.close();
-            }
-        }
-    }
-
-    private void sendActiveClients() {
-        String message = "";
-        for (ServerThread client : activeClients) {
-            message += ",";
-            message += client.getUsername();
-        }
-        // Làm mới danh sách bạn bè online cho tất cả user mỗi khi có người login
-        for (ServerThread client : activeClients) {
-            try {
-                client.getDos().writeUTF("Online users");
-                client.getDos().writeUTF(message);
-                client.getDos().flush();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }
@@ -80,24 +59,14 @@ class ServerThread implements Runnable {
     public void run() {
         while (true) {
             try {
-                // Đọc yêu cầu từ user
-                String message = dis.readUTF();
-
                 // Yêu cầu gửi tin nhắn dạng văn bản
-                if (message.equals("Text")) {
-                    String receiver = dis.readUTF();
-                    String content = dis.readUTF();
+                String content = dis.readUTF();
 
-                    for (ServerThread client : Server.activeClients) {
-                        if (client.getUsername().equals(receiver)) {
-                            synchronized (new Object()) {
-                                client.getDos().writeUTF("Text");
-                                client.getDos().writeUTF(this.username);
-                                client.getDos().writeUTF(content);
-                                client.getDos().flush();
-                                break;
-                            }
-                        }
+                for (ServerThread client : Server.activeClients) {
+                    synchronized (new Object()) {
+                        client.getDos().writeUTF(this.username);
+                        client.getDos().writeUTF(content);
+                        client.getDos().flush();
                     }
                 }
             } catch (IOException e) {
